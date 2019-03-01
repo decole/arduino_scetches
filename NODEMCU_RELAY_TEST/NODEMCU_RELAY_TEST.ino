@@ -166,10 +166,10 @@ void loop() {
 
   if (now - lastMsg > 10000) {
     client.publish("water/major/check", String(digitalRead(Relay1)).c_str(), true);
-    client.publish("water/1/check", String(digitalRead(Relay2)).c_str(), true);
-    client.publish("water/2/check", String(digitalRead(Relay3)).c_str(), true);
-    client.publish("water/3/check", String(digitalRead(Relay4)).c_str(), true);
+    client.publish("water/1/check",     String(digitalRead(Relay2)).c_str(), true);
+    client.publish("water/2/check",     String(digitalRead(Relay3)).c_str(), true);
+    client.publish("water/3/check",     String(digitalRead(Relay4)).c_str(), true);
     client.publish("water/trans/check", String(digitalRead(Relay5)).c_str(), true);
-    
+    client.publish("water/leakage",     String(digitalRead(Woter1)).c_str(), true);
   }
 }
