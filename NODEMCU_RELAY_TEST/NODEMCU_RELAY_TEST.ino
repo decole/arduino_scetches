@@ -59,74 +59,58 @@ void callback(char* topic, byte* payload, unsigned int length) {
   byte* p = (byte*)malloc(length);
   // Copy the payload to the new buffer
   memcpy(p,payload,length);
-  client.publish("outTopic", p, length);
-  // Free the memory
+  
+ // в топиках передавать 1 или 0
+  if(String(topic).indexOf("water/trans")>= 0){
+    if(p[0] == '1') {
+      digitalWrite(Relay5, HIGH);     
+    }
+    else if(p[0] == '0') {
+      digitalWrite(Relay5, LOW);
+    }
+  }
+  if(String(topic).indexOf("water/major")>= 0){
+    if(p[0] == '0') {
+      digitalWrite(Relay1, HIGH);    
+    }
+    else if(p[0] == '1') {
+      digitalWrite(Relay1, LOW);
+    }
+  }
+  if(String(topic).indexOf("water/1")>= 0){
+    if(p[0] == '0') {
+      digitalWrite(Relay2, HIGH);    
+    }
+    else if(p[0] == '1') {
+      digitalWrite(Relay2, LOW); 
+    }
+  }
+  if(String(topic).indexOf("water/2")>= 0){
+    if(p[0] == '0') {
+      digitalWrite(Relay3, HIGH); 
+    }
+    else if(p[0] == '1') {
+      digitalWrite(Relay3, LOW); 
+    }
+  }
+  if(String(topic).indexOf("water/3")>= 0){
+    if(p[0] == '0') {
+      digitalWrite(Relay4, HIGH);    
+    }
+    else if(p[0] == '1') {
+      digitalWrite(Relay4, LOW); 
+    }
+  }
+  if(String(topic).indexOf("water/alarm")>= 0){
+    if(p[0] == '1') {
+      digitalWrite(Relay1, LOW);
+      digitalWrite(Relay2, LOW);
+      digitalWrite(Relay3, LOW);
+      digitalWrite(Relay4, LOW);
+      digitalWrite(Relay5, LOW);     
+    }
+  }
   free(p);
-  // fix to nettie
-  String topicValue = "";
-  for (int i = 0; i < length; i++) {
-    topicValue += (char)payload[i];
-  }
-  if(topic = "water/trans"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      digitalWrite(Relay5, HIGH);
-      topicValue = "";      
-    }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      digitalWrite(Relay5, LOW);
-      topicValue = "";  
-    }
-  }
-  if(topic = "water/major"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      digitalWrite(Relay1, HIGH);
-      topicValue = "";      
-    }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      digitalWrite(Relay1, LOW);
-      topicValue = "";  
-    }
-  }
-  if(topic = "water/1"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      digitalWrite(Relay2, HIGH);
-      topicValue = "";      
-    }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      digitalWrite(Relay2, LOW);
-      topicValue = "";  
-    }
-  }
-  if(topic = "water/2"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      digitalWrite(Relay3, HIGH);
-      topicValue = "";      
-    }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      digitalWrite(Relay3, LOW);
-      topicValue = "";  
-    }
-  }
-  if(topic = "water/3"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      digitalWrite(Relay4, HIGH);
-      topicValue = "";      
-    }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      digitalWrite(Relay4, LOW);
-      topicValue = "";  
-    }
-  }
-  if(topic = "water/alarm"){
-    if(String(topicValue).indexOf("1") >= 0) {
-      digitalWrite(Relay1, LOW);
-      digitalWrite(Relay2, LOW);
-      digitalWrite(Relay3, LOW);
-      digitalWrite(Relay4, LOW);
-      digitalWrite(Relay5, LOW);
-      topicValue = "";      
-    }
-  }
 }
 
 void reconnect() {
