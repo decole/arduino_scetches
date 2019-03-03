@@ -10,7 +10,7 @@ email: decole@rambler.ru
 int Relay1 = 16;// D0
 int Relay2 = 5; // D1
 int Relay3 = 4; // D2
-int Relay4 = 2; // D3
+int Relay4 = 2; // D4
 int Relay5 = 14;// D5
 int Woter1 = 12;// D6
 
@@ -51,63 +51,79 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {  
+    // In order to republish this payload, a copy must be made
+  // as the orignal payload buffer will be overwritten whilst
+  // constructing the PUBLISH packet.
+
+  // Allocate the correct amount of memory for the payload copy
+  byte* p = (byte*)malloc(length);
+  // Copy the payload to the new buffer
+  memcpy(p,payload,length);
+  client.publish("outTopic", p, length);
+  // Free the memory
+  free(p);
+  // fix to nettie
   String topicValue = "";
   for (int i = 0; i < length; i++) {
     topicValue += (char)payload[i];
   }
   if(topic = "water/trans"){
     if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/trans on");
+      digitalWrite(Relay5, HIGH);
       topicValue = "";      
     }
     else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/trans off");
+      digitalWrite(Relay5, LOW);
       topicValue = "";  
     }
   }
   if(topic = "water/major"){
     if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/major on");
+      digitalWrite(Relay1, HIGH);
       topicValue = "";      
     }
     else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/major off");
+      digitalWrite(Relay1, LOW);
       topicValue = "";  
     }
   }
   if(topic = "water/1"){
     if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/1 on");
+      digitalWrite(Relay2, HIGH);
       topicValue = "";      
     }
     else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/1 off");
+      digitalWrite(Relay2, LOW);
       topicValue = "";  
     }
   }
   if(topic = "water/2"){
     if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/2 on");
+      digitalWrite(Relay3, HIGH);
       topicValue = "";      
     }
     else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/2 off");
+      digitalWrite(Relay3, LOW);
       topicValue = "";  
     }
   }
   if(topic = "water/3"){
     if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/3 on");
+      digitalWrite(Relay4, HIGH);
       topicValue = "";      
     }
     else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/3 off");
+      digitalWrite(Relay4, LOW);
       topicValue = "";  
     }
   }
   if(topic = "water/alarm"){
     if(String(topicValue).indexOf("1") >= 0) {
-      Serial.println("alarm leakage!");
+      digitalWrite(Relay1, LOW);
+      digitalWrite(Relay2, LOW);
+      digitalWrite(Relay3, LOW);
+      digitalWrite(Relay4, LOW);
+      digitalWrite(Relay5, LOW);
       topicValue = "";      
     }
   }
