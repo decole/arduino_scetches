@@ -1,39 +1,31 @@
-/*
-Автор: Сергей Галочкин
-email: decole@rambler.ru
-Данный скетч для NodeMCU.
-*/
-
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-int Relay1 = 16;// D0
+int Relay1 = 14;// D5
 int Relay2 = 5; // D1
 int Relay3 = 4; // D2
-int Relay4 = 2; // D3
-int Relay5 = 14;// D5
+int Relay4 = 2; // D4
 int Woter1 = 12;// D6
 
 // Update these with values suitable for your network.
-
-const char* ssid = "DECOLE-WIFI";
-const char* password = "A9061706210";
-const char* mqtt_server = "192.168.1.5";
+const char* ssid = "WiFi-DOM.ru-5888"; // DECOLE-WIFI
+const char* password = "nfdmkkckhk"; // A9061706210
+const char* mqtt_server = "uberserver.ru"; // 192.168.1.5
+long lastMsg = 0;
+char msg[50];
+// Callback function header
+void callback(char* topic, byte* payload, unsigned int length);
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-long lastMsg = 0;
-char msg[50];
-int value = 0;
 
 void setup_wifi() {
-
   delay(10);
-  // We start by connecting to a WiFi network
+  
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
-
+  
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -42,118 +34,116 @@ void setup_wifi() {
   }
 
   randomSeed(micros());
-
+  
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-
+  
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {  
-  String topicValue = "";
-  for (int i = 0; i < length; i++) {
-    topicValue += (char)payload[i];
-  }
-  if(topic = "water/trans"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/trans on");
-      topicValue = "";      
+void callback(char* topic, byte* payload, unsigned int length) {
+  byte* p = (byte*)malloc(length);
+  // Copy the payload to the new buffer
+  memcpy(p,payload,length);
+  //client.publish("outTopic", p, length);
+  
+  if (strcmp(topic,"water/major")==0){
+    //client.publish("water/major","water/major");
+    if(p[0] == '0') {
+      digitalWrite(Relay1, HIGH);    
     }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/trans off");
-      topicValue = "";  
-    }
-  }
-  if(topic = "water/major"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/major on");
-      topicValue = "";      
-    }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/major off");
-      topicValue = "";  
+    else if(p[0] == '1') {
+      digitalWrite(Relay1, LOW);
     }
   }
-  if(topic = "water/1"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/1 on");
-      topicValue = "";      
+ 
+  if (strcmp(topic,"water/1")==0) {
+    if(p[0] == '0') {
+      digitalWrite(Relay2, HIGH);    
     }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/1 off");
-      topicValue = "";  
-    }
-  }
-  if(topic = "water/2"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/2 on");
-      topicValue = "";      
-    }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/2 off");
-      topicValue = "";  
+    else if(p[0] == '1') {
+      digitalWrite(Relay2, LOW); 
     }
   }
-  if(topic = "water/3"){
-    if(String(topicValue).indexOf("on") >= 0) {
-      Serial.println("water/3 on");
-      topicValue = "";      
+ 
+  if (strcmp(topic,"water/2")==0) {
+    if(p[0] == '0') {
+      digitalWrite(Relay3, HIGH); 
     }
-    else if(String(topicValue).indexOf("off") >= 0) {
-      Serial.println("water/3 off");
-      topicValue = "";  
+    else if(p[0] == '1') {
+      digitalWrite(Relay1, LOW);
+      digitalWrite(Relay3, LOW); 
+    }
+  }  
+ 
+  if (strcmp(topic,"water/3")==0) {
+    if(p[0] == '0') {
+      digitalWrite(Relay4, HIGH);    
+    }
+    else if(p[0] == '1') {
+      digitalWrite(Relay1, LOW);
+      digitalWrite(Relay4, LOW); 
     }
   }
-  if(topic = "water/alarm"){
-    if(String(topicValue).indexOf("1") >= 0) {
-      Serial.println("alarm leakage!");
-      topicValue = "";      
+
+  if (strcmp(topic,"water/alarm")==0) {
+    if(p[0] == '1') {
+      // оключаем все реле
+      digitalWrite(Relay1, HIGH); 
+      digitalWrite(Relay2, HIGH);
+      digitalWrite(Relay3, HIGH);
+      digitalWrite(Relay4, HIGH); 
     }
   }
+  
+  free(p);
 }
 
 void reconnect() {
-  // Loop until we're reconnected
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
-    // Create a random client ID
+    // Создаем рандомный client ID
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
-    // Attempt to connect
+    // Пробуем подключиться
     if (client.connect(clientId.c_str()), "esp", "esp99669966q") {
       Serial.println("connected");
-      // Once connected, publish an announcement...
-      client.publish("outTopic", "hello world");
-      // ... and resubscribe
+      // После конекта отправка тестового сообщения и подписка на топики
+      client.publish("outTopicWater","hello water");
       client.subscribe("water/major");
       client.subscribe("water/1");
       client.subscribe("water/2");
       client.subscribe("water/3");
-      client.subscribe("water/trans");
       client.subscribe("water/alarm");
     } else {
+      
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
+      
+      // Ждем 5 секунд и запускаем еще раз
       delay(5000);
     }
   }
 }
 
 void setup() {
-  // put your setup code here, to run once:
+  Serial.begin(115200);  
+  setup_wifi();
+  client.setServer(mqtt_server, 2223); // 1883
+  client.setCallback(callback);
+
   pinMode(Relay1, OUTPUT);
   pinMode(Relay2, OUTPUT);
   pinMode(Relay3, OUTPUT);
   pinMode(Relay4, OUTPUT);
-  pinMode(Relay5, OUTPUT);
-  pinMode(Woter1, OUTPUT);
-  Serial.begin(115200);
-  setup_wifi();
-  client.setServer(mqtt_server, 1883);
-  client.setCallback(callback);
+  pinMode(Woter1, INPUT);
+
+  digitalWrite(Relay1, HIGH); 
+  digitalWrite(Relay2, HIGH);
+  digitalWrite(Relay3, HIGH);
+  digitalWrite(Relay4, HIGH); 
 }
 
 void loop() {
@@ -165,11 +155,12 @@ void loop() {
   long now = millis();
 
   if (now - lastMsg > 10000) {
-    client.publish("water/major/check", String(digitalRead(Relay1)).c_str(), true);
-    client.publish("water/1/check",     String(digitalRead(Relay2)).c_str(), true);
-    client.publish("water/2/check",     String(digitalRead(Relay3)).c_str(), true);
-    client.publish("water/3/check",     String(digitalRead(Relay4)).c_str(), true);
-    client.publish("water/trans/check", String(digitalRead(Relay5)).c_str(), true);
+    client.publish("water/check/major", String(digitalRead(Relay1)).c_str(), true);
+    client.publish("water/check/1",     String(digitalRead(Relay2)).c_str(), true);
+    client.publish("water/check/2",     String(digitalRead(Relay3)).c_str(), true);
+    client.publish("water/check/3",     String(digitalRead(Relay4)).c_str(), true);
     client.publish("water/leakage",     String(digitalRead(Woter1)).c_str(), true);
+
+    lastMsg = now;
   }
 }
