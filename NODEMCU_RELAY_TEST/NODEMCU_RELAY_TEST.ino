@@ -11,6 +11,10 @@ int Woter1 = 12;// D6
 const char* ssid = "WiFi-DOM.ru-5888"; // DECOLE-WIFI
 const char* password = "nfdmkkckhk"; // A9061706210
 const char* mqtt_server = "uberserver.ru"; // 192.168.1.5
+//const char* ssid = "DECOLE-WIFI";
+//const char* password = "A9061706210";
+//const char* mqtt_server = "192.168.1.5";
+
 long lastMsg = 0;
 char msg[50];
 // Callback function header
