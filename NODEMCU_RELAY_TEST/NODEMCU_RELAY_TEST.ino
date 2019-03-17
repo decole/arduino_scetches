@@ -132,7 +132,7 @@ void reconnect() {
 void setup() {
   Serial.begin(115200);  
   setup_wifi();
-  client.setServer(mqtt_server, 1883); // 1883
+  client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 
   pinMode(Relay1, OUTPUT);
@@ -156,11 +156,11 @@ void loop() {
   long now = millis();
 
   if (now - lastMsg > 10000) {
-    client.publish("water/check/major", String(digitalRead(Relay1)).c_str(), true);
-    client.publish("water/check/1",     String(digitalRead(Relay2)).c_str(), true);
-    client.publish("water/check/2",     String(digitalRead(Relay3)).c_str(), true);
-    client.publish("water/check/3",     String(digitalRead(Relay4)).c_str(), true);
-    client.publish("water/leakage",     String(digitalRead(Woter1)).c_str(), true);
+    client.publish("water/check/major", String(!digitalRead(Relay1)).c_str(), true);
+    client.publish("water/check/1",     String(!digitalRead(Relay2)).c_str(), true);
+    client.publish("water/check/2",     String(!digitalRead(Relay3)).c_str(), true);
+    client.publish("water/check/3",     String(!digitalRead(Relay4)).c_str(), true);
+    client.publish("water/leakage",     String(!digitalRead(Woter1)).c_str(), true);
 
     lastMsg = now;
   }
