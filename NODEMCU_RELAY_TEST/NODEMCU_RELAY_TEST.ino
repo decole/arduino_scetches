@@ -8,12 +8,9 @@ int Relay4 = 2; // D4
 int Woter1 = 12;// D6
 
 // Update these with values suitable for your network.
-const char* ssid = "WiFi-DOM.ru-5888"; // DECOLE-WIFI
-const char* password = "nfdmkkckhk"; // A9061706210
-const char* mqtt_server = "uberserver.ru"; // 192.168.1.5
-//const char* ssid = "DECOLE-WIFI";
-//const char* password = "A9061706210";
-//const char* mqtt_server = "192.168.1.5";
+const char* ssid = "DECOLE-WIFI";
+const char* password = "A9061706210";
+const char* mqtt_server = "192.168.1.5";
 
 long lastMsg = 0;
 char msg[50];
@@ -135,7 +132,7 @@ void reconnect() {
 void setup() {
   Serial.begin(115200);  
   setup_wifi();
-  client.setServer(mqtt_server, 2223); // 1883
+  client.setServer(mqtt_server, 1883); // 1883
   client.setCallback(callback);
 
   pinMode(Relay1, OUTPUT);
